@@ -1,0 +1,260 @@
+/* admin.css */
+
+/* Variables de couleur */
+:root {
+    --primary-color: #2E7D32; /* Vert foncé */
+    --secondary-color: #4CAF50; /* Vert moyen */
+    --dark-color: #212121; /* Noir */
+    --light-gray: #f5f5f5; /* Gris très clair */
+    --medium-gray: #e0e0e0; /* Gris moyen */
+    --dark-gray: #757575; /* Gris foncé */
+    --white: #ffffff;
+  }
+  
+  /* Styles de base */
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--light-gray);
+    color: var(--dark-color);
+  }
+  
+  .admin-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  h2, h3 {
+    color: var(--dark-color);
+    margin-bottom: 20px;
+  }
+  
+  /* Onglets */
+  .tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--medium-gray);
+  }
+  
+  .tabs button {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--dark-gray);
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    margin-right: 5px;
+  }
+  
+  .tabs button:hover {
+    color: var(--primary-color);
+    background-color: rgba(46, 125, 50, 0.05);
+  }
+  
+  .tabs button.active {
+    color: var(--primary-color);
+    border-bottom: 3px solid var(--primary-color);
+    font-weight: 600;
+  }
+  
+  /* Barre de recherche */
+  .search-bar {
+    display: flex;
+    margin-bottom: 20px;
+    gap: 10px;
+  }
+  
+  .search-bar input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid var(--medium-gray);
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border 0.3s;
+  }
+  
+  .search-bar input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+  }
+  
+  /* Boutons */
+  button {
+    padding: 10px 15px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .green-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: 1px solid var(--primary-color);
+  }
+  
+  .green-btn:hover {
+    background-color: #1B5E20;
+    border-color: #1B5E20;
+  }
+  
+  .export-btn {
+    background-color: var(--white);
+    color: var(--dark-gray);
+    border: 1px solid var(--medium-gray);
+  }
+  
+  .export-btn:hover {
+    background-color: var(--light-gray);
+    color: var(--dark-color);
+  }
+  
+  .action-btn {
+    background: none;
+    border: none;
+    color: var(--dark-gray);
+    font-size: 16px;
+    padding: 5px 10px;
+    margin: 0 5px;
+  }
+  
+  .action-btn:hover {
+    color: var(--primary-color);
+    background-color: rgba(46, 125, 50, 0.1);
+    border-radius: 50%;
+  }
+  
+  /* Tableaux */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--white);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  th {
+    background-color: var(--primary-color);
+    color: white;
+    text-align: left;
+    padding: 12px 15px;
+    font-weight: 500;
+  }
+  
+  td {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--medium-gray);
+    color: var(--dark-color);
+  }
+  
+  tr:last-child td {
+    border-bottom: none;
+  }
+  
+  tr:hover {
+    background-color: rgba(76, 175, 80, 0.05);
+  }
+  
+  /* Formulaire d'ajout de spécialité */
+  .add-specialite-form {
+    background-color: var(--white);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .add-specialite-form input,
+  .add-specialite-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid var(--medium-gray);
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .add-specialite-form textarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+  
+  /* Modal */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background-color: var(--white);
+    padding: 25px;
+    border-radius: 4px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .modal-actions button {
+    padding: 8px 16px;
+  }
+  
+  .modal-actions button:first-child {
+    background-color: var(--white);
+    color: var(--dark-gray);
+    border: 1px solid var(--medium-gray);
+  }
+  
+  .modal-actions button:first-child:hover {
+    background-color: var(--light-gray);
+  }
+  
+  .modal-actions button:last-child {
+    background-color: #D32F2F;
+    color: white;
+    border: 1px solid #D32F2F;
+  }
+  
+  .modal-actions button:last-child:hover {
+    background-color: #B71C1C;
+    border-color: #B71C1C;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .search-bar {
+      flex-direction: column;
+    }
+    
+    .tabs {
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    
+    table {
+      display: block;
+      overflow-x: auto;
+    }
+  }
+  

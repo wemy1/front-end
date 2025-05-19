@@ -1,0 +1,188 @@
+/* tech.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+
+:root {
+  --dark-green: #1a5d1a;
+  --medium-green: #2e8b57;
+  --light-green: #e8f5e9;
+  --dark-gray: #2d3748;
+  --medium-gray: #4a5568;
+  --light-gray: #edf2f7;
+  --black: #1a202c;
+  --white: #ffffff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  background-color: var(--light-gray);
+  color: var(--black);
+  min-height: 100vh;
+}
+
+/* Header */
+header {
+  background-color: var(--white);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+header h1 {
+  color: var(--dark-green);
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+/* Search input */
+header input {
+  background-color: var(--light-gray);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+header input:focus {
+  border-color: var(--dark-green);
+  box-shadow: 0 0 0 2px rgba(26, 93, 26, 0.2);
+}
+
+/* Navigation tabs */
+button[role="tab"] {
+  transition: all 0.3s ease;
+}
+
+button[role="tab"].active {
+  background-color: var(--dark-green);
+  color: var(--white);
+}
+
+button[role="tab"]:not(.active):hover {
+  background-color: rgba(26, 93, 26, 0.1);
+}
+
+/* Cards */
+.bg-white {
+  background-color: var(--white);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bg-white:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Stat cards */
+.stat-card {
+  background-color: var(--white);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  border-color: var(--dark-green);
+}
+
+.stat-card-icon {
+  background-color: rgba(26, 93, 26, 0.1);
+  color: var(--dark-green);
+  border-radius: 50%;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--dark-green);
+  color: var(--white);
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #144614;
+  transform: translateY(-1px);
+}
+
+/* Profile menu */
+.profile-menu {
+  background-color: var(--white);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.profile-menu-item {
+  transition: all 0.2s ease;
+}
+
+.profile-menu-item:hover {
+  background-color: var(--light-green);
+  color: var(--dark-green);
+}
+
+/* Badges */
+.badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.badge-primary {
+  background-color: rgba(26, 93, 26, 0.1);
+  color: var(--dark-green);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.15s ease-out forwards;
+}
+
+/* Utility classes */
+.text-dark-green {
+  color: var(--dark-green);
+}
+
+.bg-dark-green {
+  background-color: var(--dark-green);
+}
+
+.border-dark-green {
+  border-color: var(--dark-green);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .stat-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .stat-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .tabs {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

@@ -1,0 +1,91 @@
+/* Client.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+  }
+  
+  .app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .header {
+    background-color: #fff;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .logo-location {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .logo {
+    color: #2e7d32; /* Green color similar to AlloVoisins */
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .location {
+    display: flex;
+    align-items: center;
+    color: #666;
+    font-size: 14px;
+  }
+  
+  .location-icon {
+    margin-right: 5px;
+  }
+  
+  .navigation {
+    background-color: #f5f5f5;
+    padding: 10px 20px;
+  }
+  
+  .nav-list {
+    display: flex;
+    list-style: none;
+  }
+  
+  .nav-item {
+    margin-right: 20px;
+    padding: 5px 0;
+    color: #666;
+    cursor: pointer;
+  }
+  
+  .nav-item.active {
+    color: #2e7d32;
+    border-bottom: 2px solid #2e7d32;
+  }
+  
+  .nav-item.user {
+    margin-left: auto;
+    color: #2e7d32;
+    font-weight: bold;
+  }
+  
+  .main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: #fff;
+  }
+  
+  .greeting {
+    margin-bottom: 20px;
+  }
+  
+  .greeting h2 {
+    color: #333;
+    font-size: 20px;
+  }
+  
+  .public-request h3 {
+    color: #333;
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
