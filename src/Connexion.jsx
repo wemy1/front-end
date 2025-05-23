@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { MailIcon, LockIcon, WrenchIcon } from "lucide-react";
-import { loginUser } from './Api';
+
 // Données statiques des utilisateurs (à remplacer par votre propre liste)
 
 

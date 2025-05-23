@@ -89,3 +89,43 @@
     font-size: 18px;
     margin-bottom: 15px;
   }
+  .hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+  .public-request-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 400px; /* Adjust as needed */
+    overflow-y: auto; /* Enable vertical scrolling */
+  }
+  
+  .request-item {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .request-item:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .request-item h4 {
+    color: #333;
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+  
+  .request-item p {
+    color: #666;
+    font-size: 14px;
+  }

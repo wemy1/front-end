@@ -12,7 +12,7 @@ import AllReviewsPage from "./ClientPage/AllReviewsPage";
 import PaymentMethodsPage from "./ClientPage/PaymentMethodsPage";
 import HelpSupportPage from "./ClientPage/HelpSupportPage";
 import ChatInterface from "./ClientPage/ChatInterface";
-import Ofrreurs from "./ClientPage/Ofrreurs";
+import Ofreures from "./ClientPage/Ofreures";
 import DemandTypeSelection from "./ClientPage/DemandTypeSelection";
 import DemandPublique from "./ClientPage/DemandPublique";
 import TechnicienHome from "./Technicien/TechnicienHome";
@@ -23,6 +23,8 @@ import DemandesPrivees from "./Technicien/DemandesPrivees";
 import AdminPage from "./Admin/AdminPage";
 import ConfirmDialog from "./Admin/ConfirmDialog";
 import Test from "./test";
+import EmailVerificationPage from "./EmailVerificationPage";
+
 function App(){
 
   return (
@@ -41,7 +43,7 @@ function App(){
 <Route path="/PaymentMethodsPage" element={<PaymentMethodsPage/>}/>
 <Route path="/HelpSupportPage" element={<HelpSupportPage/>}/>
 <Route path="/ChatInterface" element={<ChatInterface/>}/>
-<Route path="/Ofrreurs" element={<Ofrreurs/>}/>
+<Route path="/Ofreures" element={<Ofreures/>}/>
 <Route path="/DemandTypeSelection" element={<DemandTypeSelection/>}/>
 <Route path="/DemandPublique" element={<DemandPublique/>}/>
 <Route path="/TechnicienHome" element={<TechnicienHome/>}/>
@@ -52,6 +54,8 @@ function App(){
 <Route path="/AdminPage" element={<AdminPage/>}/>
 <Route path="/ConfirmDialog" element={<ConfirmDialog/>}/>
 <Route path="/Test" element={<Test/>}/>
+<Route path="/EmailVerificationPage" element={<EmailVerificationPage/>}/>
+
       </Routes>
   )
 };

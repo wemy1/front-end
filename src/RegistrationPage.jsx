@@ -1,56 +1,77 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PhoneIcon, MailIcon, HomeIcon, WrenchIcon, LockIcon } from "lucide-react";
-import { registerUser } from "./Api"; // adapte le chemin si besoin
 
 export default function RegistrationPage() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
-  address: '',
-  password: '',
-  urgent: false
-});
-
+    nom: '',
+    prenom: '',
+    email: '',
+    telephone: '',
+    adresse: '',
+    mot_de_passe: '',
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     });
   };
-
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
   setIsSubmitting(true);
   setError(null);
 
   try {
-    await registerUser(formData);
-    navigate("/Connexion");
-  } catch (error) {
-    // Axios donne toujours une structure d’erreur propre
-    if (error.response && error.response.data && error.response.data.message) {
-      setError(error.response.data.message);
-    } else {
-      setError("Erreur de connexion au serveur");
+    // Validation côté client
+    if (formData.mot_de_passe.length < 8) {
+      throw new Error('Le mot de passe doit contenir au moins 8 caractères');
     }
+
+    // Debug: Affichez le payload avant envoi
+    const payload = {
+      nom: formData.nom,      // ou formData.prenom selon votre besoin
+      prenom: formData.prenom,    // ou formData.nom
+      email: formData.email,
+      telephone: formData.telephone,  // Essayez aussi 'phone' si ça ne marche pas
+      adresse: formData.adresse,
+      mot_de_passe: formData.mot_de_passe
+    };
+    console.log('Payload envoyé:', payload);
+
+    const response = await fetch('http://localhost:3000/api/signup', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('Réponse détaillée du serveur:', data);
+      throw new Error(data.message || data.error || 'Erreur lors de l\'inscription');
+    }
+    if (data.user) {
+      localStorage.setItem('user', JSON.stringify(data.user));
+    }
+    navigate("/HomeClient", { state: { email: formData.email } });
+  } catch (err) {
+    console.error('Erreur complète:', err);
+    setError(err.message);
   } finally {
     setIsSubmitting(false);
   }
 };
 
-  
-  
-
-  return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+return (
+  <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden md:max-w-2xl">
         <div className="md:flex">
           <div className="md:shrink-0">
@@ -78,8 +99,8 @@ export default function RegistrationPage() {
                     <input
                       type="text"
                       id="firstName"
-                      name="firstName"
-                      value={formData.firstName}
+                      name="prenom"
+                      value={formData.prenom}
                       onChange={handleChange}
                       required
                       className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-500 bg-gray-50"
@@ -92,8 +113,8 @@ export default function RegistrationPage() {
                     <input
                       type="text"
                       id="lastName"
-                      name="lastName"
-                      value={formData.lastName}
+                      name="nom"
+                      value={formData.nom}
                       onChange={handleChange}
                       required
                       className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-500 bg-gray-50"
@@ -131,9 +152,9 @@ export default function RegistrationPage() {
                     </div>
                     <input
                       type="tel"
-                      id="phone"
-                      name="phone"
-                      value={formData.phone}
+                      id="telephone"
+                      name="telephone"
+                      value={formData.telephone}
                       onChange={handleChange}
                       required
                       className="block w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-500 bg-gray-50"
@@ -151,9 +172,9 @@ export default function RegistrationPage() {
                     </div>
                     <input
                       type="text"
-                      id="address"
-                      name="address"
-                      value={formData.address}
+                      id="adresse"
+                      name="adresse"
+                      value={formData.adresse}
                       onChange={handleChange}
                       required
                       className="block w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-500 bg-gray-50"
@@ -171,9 +192,9 @@ export default function RegistrationPage() {
                     </div>
                     <input
                       type="password"
-                      id="password"
-                      name="password"
-                      value={formData.password}
+                      id="mot_de_passe"
+                      name="mot_de_passe"
+                      value={formData.mot_de_passe}
                       onChange={handleChange}
                       required
                       minLength={8}
@@ -181,20 +202,6 @@ export default function RegistrationPage() {
                       placeholder="••••••••"
                     />
                   </div>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    id="urgent"
-                    name="urgent"
-                    type="checkbox"
-                    checked={formData.urgent}
-                    onChange={handleChange}
-                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="urgent" className="ml-2 block text-sm text-gray-700">
-                    Intervention urgente
-                  </label>
                 </div>
               </div>
 
@@ -228,3 +235,5 @@ export default function RegistrationPage() {
     </div>
   );
 }
+  
+  
