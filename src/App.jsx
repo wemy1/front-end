@@ -24,6 +24,8 @@ import AdminPage from "./Admin/AdminPage";
 import ConfirmDialog from "./Admin/ConfirmDialog";
 import Test from "./test";
 import EmailVerificationPage from "./EmailVerificationPage";
+import ProfileButton from "./Technicien/ProfileButton";
+import ChatInterfacee from "./Technicien/ChatInterfacee";
 
 function App(){
 
@@ -55,7 +57,8 @@ function App(){
 <Route path="/ConfirmDialog" element={<ConfirmDialog/>}/>
 <Route path="/Test" element={<Test/>}/>
 <Route path="/EmailVerificationPage" element={<EmailVerificationPage/>}/>
-
+<Route path="/ProfileButton" element={<ProfileButton user={{nom: "Technicien", image: null}}/>}/>
+<Route path="/ChatInterfacee" element={<ChatInterfacee/>}/>
       </Routes>
   )
 };

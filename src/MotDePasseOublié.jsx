@@ -55,7 +55,7 @@ export default function MotDePasseOublié() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-400 focus:border-orange-400"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400"
                     placeholder="votre@email.com"
                   />
                 </div>
@@ -65,7 +65,7 @@ export default function MotDePasseOublié() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 ${
+                  className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 ${
                     isLoading ? 'opacity-70 cursor-not-allowed' : ''
                   }`}
                 >
@@ -111,7 +111,7 @@ export default function MotDePasseOublié() {
             <div className="mt-6 text-center">
               <Link
                 to="/Connexion"
-                className="inline-flex items-center text-sm font-medium text-orange-400 hover:text-orange-400"
+                className="inline-flex items-center text-sm font-medium text-green-400 hover:text-green-400"
               >
                 <ArrowLeftIcon className="mr-1 h-4 w-4" />
                 Page de connexion

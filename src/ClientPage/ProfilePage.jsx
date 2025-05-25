@@ -1,13 +1,24 @@
 import { useState } from 'react';
 import { FaUser, FaEdit, FaHistory, FaCreditCard, FaQuestionCircle, FaSignOutAlt, FaArrowLeft, FaCamera, FaStar } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
-// الطريقة الصحيحة للاستيراد:
-import RequestHistory from './RequestHistory';
-import AllReviewsPage from './AllReviewsPage';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [profileImage, setProfileImage] = useState(null);
+  const [userData, setUserData] = useState({
+    name: "Ahmed",
+    email: "ahmed@quickfixdz.com",
+    phone: "+213123456789",
+    address: "Alger Centre, Alger",
+    joinDate: "15/03/2022",
+    completedRequests: 12,
+    rating: 4.2,
+    reviewCount: 8,
+    notifications: {
+      email: true,
+      sms: false
+    }
+  });
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -21,18 +32,25 @@ const ProfilePage = () => {
   };
 
   const handleLogout = () => {
+    // Effacer toutes les données de session
     localStorage.removeItem('token');
-    navigate('/Connexion');
+    localStorage.removeItem('userData');
+    
+    // Rediriger vers la page de connexion
+    navigate('/Connexion', { replace: true });
+    
+    // Rafraîchir pour nettoyer l'état de l'application
+    window.location.reload();
   };
 
-  const userData = {
-    name: "Ahmed",
-    email: "ahmed@quickfixdz.com",
-    phone: "+213123456789",
-    address: "Alger Centre, Alger",
-    joinDate: "15/03/2022",
-    completedRequests: 12,
-    rating: 4.2
+  const handleNotificationToggle = (type) => {
+    setUserData(prev => ({
+      ...prev,
+      notifications: {
+        ...prev.notifications,
+        [type]: !prev.notifications[type]
+      }
+    }));
   };
 
   return (
@@ -94,7 +112,7 @@ const ProfilePage = () => {
             <div className="text-gray-600 text-sm">Demandes</div>
           </div>
           <div className="bg-white rounded-lg shadow-md p-4 text-center border border-gray-200">
-            <div className="text-green-600 font-bold text-xl">{userData.rating}</div>
+            <div className="text-green-600 font-bold text-xl">{userData.rating.toFixed(1)}</div>
             <div className="text-gray-600 text-sm">Évaluation</div>
           </div>
         </div>
@@ -104,9 +122,14 @@ const ProfilePage = () => {
           <h3 className="text-lg font-semibold mb-4 text-gray-800">Vos évaluations</h3>
           <div className="flex items-center mb-2">
             {[...Array(5)].map((_, i) => (
-              <FaStar key={i} className={`${i < Math.floor(userData.rating) ? 'text-yellow-400' : 'text-gray-300'} mr-1`} />
+              <FaStar 
+                key={i} 
+                className={`${i < Math.floor(userData.rating) ? 'text-yellow-400' : 'text-gray-300'} mr-1`} 
+              />
             ))}
-            <span className="ml-2 text-gray-600">{userData.rating}/5 (12 avis)</span>
+            <span className="ml-2 text-gray-600">
+              {userData.rating.toFixed(1)}/5 ({userData.reviewCount} avis)
+            </span>
           </div>
           <button 
             onClick={() => navigate('/AllReviewsPage')}
@@ -123,15 +146,29 @@ const ProfilePage = () => {
             <div className="flex items-center justify-between">
               <span className="text-gray-600">Notifications par email</span>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" className="sr-only peer" defaultChecked />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={userData.notifications.email}
+                  onChange={() => handleNotificationToggle('email')}
+                />
+                <div className={`w-11 h-6 rounded-full peer ${userData.notifications.email ? 'bg-green-600' : 'bg-gray-200'}`}>
+                  <div className={`absolute top-[2px] left-[2px] bg-white border-gray-300 rounded-full h-5 w-5 transition-all ${userData.notifications.email ? 'translate-x-full' : ''}`}></div>
+                </div>
               </label>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-gray-600">Notifications SMS</span>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" className="sr-only peer" />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={userData.notifications.sms}
+                  onChange={() => handleNotificationToggle('sms')}
+                />
+                <div className={`w-11 h-6 rounded-full peer ${userData.notifications.sms ? 'bg-green-600' : 'bg-gray-200'}`}>
+                  <div className={`absolute top-[2px] left-[2px] bg-white border-gray-300 rounded-full h-5 w-5 transition-all ${userData.notifications.sms ? 'translate-x-full' : ''}`}></div>
+                </div>
               </label>
             </div>
           </div>
@@ -146,6 +183,10 @@ const ProfilePage = () => {
           <Link to="/PaymentMethodsPage" className="flex items-center p-4 border-b border-gray-200 hover:bg-gray-50 transition">
             <FaCreditCard className="text-green-600 mr-3" />
             <span className="text-gray-800">Méthodes de paiement</span>
+          </Link>
+          <Link to="/EditProfilePage" className="flex items-center p-4 border-b border-gray-200 hover:bg-gray-50 transition">
+            <FaEdit className="text-green-600 mr-3" />
+            <span className="text-gray-800">Modifier le profil</span>
           </Link>
           <Link to="/HelpSupportPage" className="flex items-center p-4 border-b border-gray-200 hover:bg-gray-50 transition">
             <FaQuestionCircle className="text-green-600 mr-3" />
