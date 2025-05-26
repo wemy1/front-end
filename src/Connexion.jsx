@@ -2,9 +2,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { MailIcon, LockIcon, WrenchIcon } from "lucide-react";
-import { loginUser } from './Api';
-// Données statiques des utilisateurs (à remplacer par votre propre liste)
-
 
 export default function Connexion() {
   const navigate = useNavigate();
@@ -16,19 +13,38 @@ export default function Connexion() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
+  const login = async (email, password) => {
+    const response = await fetch('http://localhost:3000/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email,
+        mot_de_passe: password,
+      }),
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Email ou mot de passe incorrect');
+    }
+
+    if (!data.client || data.client.role !== 'client') {
+      throw new Error("Accès réservé aux clients");
+    }
+
+    return data;
+  };
+
   useEffect(() => {
-    // Vérifier si l'utilisateur est déjà connecté
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user?.email) {
-      redirectBasedOnRole(user.role);
+    const client = JSON.parse(localStorage.getItem("client")) || JSON.parse(sessionStorage.getItem("client"));
+    if (client?.email) {
+      navigate("/HomeClient");
     }
   }, [navigate]);
-
-  const redirectBasedOnRole = (role) => {
-    role === 'technician' 
-      ? navigate("/TechnicienHome") 
-      : navigate("/HomeClient");
-  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -38,30 +54,37 @@ export default function Connexion() {
     }));
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsSubmitting(true);
-  setError(null);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
 
-  try {
-    const response = await loginUser(formData.email, formData.password);
-    
-    // Stockage des données utilisateur
-    localStorage.setItem('user', JSON.stringify({
-      id: response.user.id,
-      email: response.user.email,
-      name: `${response.user.prenom} ${response.user.nom}`,
-      role: response.user.role // 'client' ou 'technician'
-    }));
+    try {
+      const response = await login(formData.email, formData.password);
 
-    // Redirection basée sur le rôle
-    redirectBasedOnRole(response.user.role);
-  } catch (err) {
-    setError(err.message || "Email ou mot de passe incorrect");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+      const clientData = {
+        id: response.client.id,
+        email: response.client.email,
+        nom: response.client.nom,
+        prenom: response.client.prenom,
+        name: `${response.client.prenom} ${response.client.nom}`,
+        role: 'client'
+      };
+
+      // تخزين حسب الخيار
+      if (formData.rememberMe) {
+        localStorage.setItem('client', JSON.stringify(clientData));
+      } else {
+        sessionStorage.setItem('client', JSON.stringify(clientData));
+      }
+
+      navigate("/HomeClient");
+    } catch (err) {
+      setError(err.message || "Une erreur est survenue lors de la connexion");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -76,9 +99,9 @@ export default function Connexion() {
           <div className="uppercase tracking-wide text-sm text-green-600 font-semibold">
             Dépannage à domicile
           </div>
-          <h1 className="mt-2 text-2xl font-bold text-gray-900">Connexion</h1>
+          <h1 className="mt-2 text-2xl font-bold text-gray-900">Connexion Client</h1>
           <p className="mt-2 text-gray-600">
-            Connectez-vous à votre compte pour accéder à nos services
+            Connectez-vous à votre compte client pour accéder à nos services
           </p>
 
           {error && (
@@ -147,7 +170,7 @@ export default function Connexion() {
                 </div>
                 <div className="text-sm">
                   <Link
-                    to="/MotDePasseOublié"
+                    to="/MotDePasseOublie"
                     className="font-medium text-green-600 hover:text-green-500"
                   >
                     Mot de passe oublié ?
@@ -159,9 +182,7 @@ export default function Connexion() {
                 type="submit"
                 disabled={isSubmitting}
                 className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                  isSubmitting
-                    ? "bg-green-400"
-                    : "bg-green-600 hover:bg-green-700"
+                  isSubmitting ? "bg-green-400" : "bg-green-600 hover:bg-green-700"
                 } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
               >
                 {isSubmitting ? "Connexion en cours..." : "Se connecter"}
@@ -171,7 +192,7 @@ export default function Connexion() {
 
           <div className="text-center mt-4">
             <p className="text-sm text-gray-600">
-              Vous n'avez pas de compte ?{" "}
+              Vous n'avez pas de compte client ?{" "}
               <Link
                 to="/RegistrationPage"
                 className="font-medium text-green-600 hover:text-green-500"

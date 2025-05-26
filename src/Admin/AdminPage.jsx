@@ -4,9 +4,9 @@ import './admin.css';
 // Composant Technicien (identique à votre AdminPage existant)
 const TechnicienPage = () => {
   const [data, setData] = useState([
-    { id: 1, nom: 'Dupont', prenom: 'Jean', email: 'jean.dupont@example.com', telephone: '06 12 34 56 78', specialite: 'Plomberie' },
-    { id: 2, nom: 'Martin', prenom: 'Sophie', email: 'sophie.martin@example.com', telephone: '06 23 45 67 89', specialite: 'Electricité' },
-    { id: 3, nom: 'Dubois', prenom: 'Pierre', email: 'pierre.dubois@example.com', telephone: '06 34 55 78 90', specialite: 'Chauffage' }
+    { id: 1, nom: 'Amin K', prenom: 'Jean', email: 'Karim@example.com', telephone: '06 12 34 56 78', specialite: 'Plomberie' },
+    { id: 2, nom: 'Hamza', prenom: 'Sophie', email: 'Hmz.martin@example.com', telephone: '06 23 45 67 89', specialite: 'Electricité' },
+    { id: 3, nom: 'Yasser', prenom: 'Pierre', email: 'Yassr.dubois@example.com', telephone: '06 34 55 78 90', specialite: 'Chauffage' }
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -170,9 +170,9 @@ const ClientPage = () => {
 // Composant Avis
 const AvisPage = () => {
   const [data, setData] = useState([
-    { id: 1, client: 'Marie Durand', technicien: 'Jean Dupont', note: 5, commentaire: 'Excellent service!', date: '2023-05-15' },
-    { id: 2, client: 'Thomas Leroy', technicien: 'Sophie Martin', note: 4, commentaire: 'Très satisfait', date: '2023-05-18' },
-    { id: 3, client: 'Alice Moreau', technicien: 'Pierre Dubois', note: 3, commentaire: 'Correct', date: '2023-05-20' }
+    { id: 1, client: 'Amin', technicien: 'Amin', note: 5, commentaire: 'Excellent service!', date: '2023-05-15' },
+    { id: 2, client: 'ninoo', technicien: 'Mokhtar', note: 4, commentaire: 'Très satisfait', date: '2023-05-18' },
+    { id: 3, client: 'sadjed', technicien: 'souhil', note: 3, commentaire: 'Correct', date: '2023-05-20' }
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
