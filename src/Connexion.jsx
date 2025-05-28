@@ -1,7 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { MailIcon, LockIcon, WrenchIcon } from "lucide-react";
+import { MailIcon, LockIcon, WrenchIcon, UserIcon } from "lucide-react";
+
+
 
 export default function Connexion() {
   const navigate = useNavigate();
@@ -9,41 +11,83 @@ export default function Connexion() {
     email: "",
     password: "",
     rememberMe: false,
+    userType: "client" // Valeur par défaut
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  const login = async (email, password) => {
-    const response = await fetch('http://localhost:3000/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: email,
-        mot_de_passe: password,
-      }),
-      credentials: 'include',
-    });
+  const API_BASE_URL = 'http://localhost:3000';
 
-    const data = await response.json();
+  const login = async (email, password, userType) => {
+    try {
+      let endpoint = '';
+      
+      switch(userType) {
+        case 'client':
+          endpoint = '/api/client/login';
+          break;
+        case 'technicien':
+          endpoint = '/api/technicien/login';
+          break;
+        case 'admin':
+          endpoint = '/api';
+          break;
+        default:
+          throw new Error('Type d\'utilisateur invalide');
+      }
 
-    if (!response.ok) {
-      throw new Error(data.error || 'Email ou mot de passe incorrect');
+      const bodyData = userType === 'client'
+        ? { email, mot_de_passe: password } // backend client attend "mot_de_passe"
+        : { email, password };
+
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(bodyData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 401) {
+          throw new Error('Email ou mot de passe incorrect');
+        } else if (response.status === 403) {
+          throw new Error('Veuillez vérifier votre email avant de vous connecter');
+        } else if (errorData.error) {
+          throw new Error(errorData.error);
+        }
+        throw new Error('Erreur de connexion au serveur');
+      }
+
+      const data = await response.json();
+      if (!data) {
+        throw new Error('Réponse invalide du serveur');
+      }
+
+      return {
+        ...data,
+        [userType]: data.data
+      };
+
+    } catch (err) {
+      throw err;
     }
-
-    if (!data.client || data.client.role !== 'client') {
-      throw new Error("Accès réservé aux clients");
-    }
-
-    return data;
-  };
+  }
 
   useEffect(() => {
-    const client = JSON.parse(localStorage.getItem("client")) || JSON.parse(sessionStorage.getItem("client"));
-    if (client?.email) {
-      navigate("/HomeClient");
-    }
+    const checkAuth = () => {
+      const client = JSON.parse(localStorage.getItem("client") || sessionStorage.getItem("client") || "null");
+      const technicien = JSON.parse(localStorage.getItem("technicien") || sessionStorage.getItem("technicien") || "null");
+      const admin = JSON.parse(localStorage.getItem("admin") || sessionStorage.getItem("admin") || "null");
+
+      if (client?.email) navigate("/HomeClient");
+      if (technicien?.email) navigate("/TechnicienHome");
+      if (admin?.email) navigate("/AdminPage");
+    };
+
+    checkAuth();
   }, [navigate]);
 
   const handleChange = (e) => {
@@ -52,7 +96,7 @@ export default function Connexion() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-  };
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -60,31 +104,82 @@ export default function Connexion() {
     setError(null);
 
     try {
-      const response = await login(formData.email, formData.password);
+      const response = await login(
+        formData.email, 
+        formData.password, 
+        formData.userType
+      );
 
-      const clientData = {
-        id: response.client.id,
-        email: response.client.email,
-        nom: response.client.nom,
-        prenom: response.client.prenom,
-        name: `${response.client.prenom} ${response.client.nom}`,
-        role: 'client'
-      };
+      let userData, storageKey, redirectPath;
 
-      // تخزين حسب الخيار
-      if (formData.rememberMe) {
-        localStorage.setItem('client', JSON.stringify(clientData));
-      } else {
-        sessionStorage.setItem('client', JSON.stringify(clientData));
+      switch(formData.userType) {
+        case 'client':
+          if (!response.client) throw new Error('Réponse serveur invalide pour le client');
+          userData = {
+            id: response.client.id,
+            email: response.client.email,
+            nom: response.client.nom,
+            prenom: response.client.prenom,
+            name: `${response.client.prenom} ${response.client.nom}`,
+            role: 'client',
+            token: response.token
+          };
+          storageKey = 'client';
+          redirectPath = '/HomeClient';
+          break;
+        
+        case 'technicien':
+          if (!response.technicien) throw new Error('Réponse serveur invalide pour le technicien');
+          userData = {
+            id: response.technicien.id,
+            email: response.technicien.email,
+            nom: response.technicien.nom,
+            prenom: response.technicien.prenom,
+            specialite: response.technicien.specialite,
+            role: 'technicien',
+            token: response.token
+          };
+          storageKey = 'technicien';
+          redirectPath = '/TechnicienHome';
+          break;
+        
+        case 'admin':
+          if (!response.admin) throw new Error('Réponse serveur invalide pour l\'admin');
+          userData = {
+            id: response.admin.id,
+            email: response.admin.email,
+            nom: response.admin.nom,
+            prenom: response.admin.prenom,
+            role: 'admin',
+            token: response.token
+          };
+          storageKey = 'admin';
+          redirectPath = '/AdminPage';
+          break;
       }
 
-      navigate("/HomeClient");
+      if (formData.rememberMe) {
+        localStorage.setItem(storageKey, JSON.stringify(userData));
+      } else {
+        sessionStorage.setItem(storageKey, JSON.stringify(userData));
+      }
+
+      setTimeout(() => {
+        navigate(redirectPath);
+      }, 500);
+
     } catch (err) {
       setError(err.message || "Une erreur est survenue lors de la connexion");
+      console.error('Erreur de connexion:', err);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  
+
+
+  
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -99,9 +194,9 @@ export default function Connexion() {
           <div className="uppercase tracking-wide text-sm text-green-600 font-semibold">
             Dépannage à domicile
           </div>
-          <h1 className="mt-2 text-2xl font-bold text-gray-900">Connexion Client</h1>
+          <h1 className="mt-2 text-2xl font-bold text-gray-900">Connexion</h1>
           <p className="mt-2 text-gray-600">
-            Connectez-vous à votre compte client pour accéder à nos services
+            Connectez-vous à votre compte
           </p>
 
           {error && (
@@ -112,6 +207,29 @@ export default function Connexion() {
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-6">
             <div className="space-y-4">
+              <div>
+                <label htmlFor="userType" className="block text-sm font-medium text-gray-700">
+                  Je suis un
+                </label>
+                <div className="mt-1 relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <UserIcon className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <select
+                    id="userType"
+                    name="userType"
+                    value={formData.userType}
+                    onChange={handleChange}
+                    required
+                    className="block w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+                  >
+                    <option value="client">Client</option>
+                    <option value="technicien">Technicien</option>
+                    <option value="admin">Administrateur</option>
+                  </select>
+                </div>
+              </div>
+
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                   Email
@@ -170,7 +288,7 @@ export default function Connexion() {
                 </div>
                 <div className="text-sm">
                   <Link
-                    to="/MotDePasseOublie"
+                    to="/MotDePasseOublié"
                     className="font-medium text-green-600 hover:text-green-500"
                   >
                     Mot de passe oublié ?
@@ -192,7 +310,7 @@ export default function Connexion() {
 
           <div className="text-center mt-4">
             <p className="text-sm text-gray-600">
-              Vous n'avez pas de compte client ?{" "}
+              Vous n'avez pas de compte ?{" "}
               <Link
                 to="/RegistrationPage"
                 className="font-medium text-green-600 hover:text-green-500"
@@ -205,4 +323,4 @@ export default function Connexion() {
       </div>
     </div>
   );
-}
+};

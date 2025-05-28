@@ -1,31 +1,131 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './admin.css';
 
-// Composant Technicien (identique à votre AdminPage existant)
+const API_BASE_URL = 'http://localhost:5000/api';
+
+// Create axios instance
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Composant Technicien
 const TechnicienPage = () => {
   const [data, setData] = useState([
-    { id: 1, nom: 'Amin K', prenom: 'Jean', email: 'Karim@example.com', telephone: '06 12 34 56 78', specialite: 'Plomberie' },
-    { id: 2, nom: 'Hamza', prenom: 'Sophie', email: 'Hmz.martin@example.com', telephone: '06 23 45 67 89', specialite: 'Electricité' },
-    { id: 3, nom: 'Yasser', prenom: 'Pierre', email: 'Yassr.dubois@example.com', telephone: '06 34 55 78 90', specialite: 'Chauffage' }
+    { id: 1, nom: 'Amin ', prenom: 'hamzaoui', email: 'Karim@a.com', telephone: '06 12 34 56 78', specialite: 'Plomberie' },
+    { id: 2, nom: 'Hamza', prenom: 'lakehal', email: 'Hmz.a@example.com', telephone: '06 23 45 67 89', specialite: 'Electricité' },
+    { id: 3, nom: 'Yasser', prenom: 'sa', email: 'Yassr.b@example.com', telephone: '06 34 55 78 90', specialite: 'Chauffage' }
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingTechnicien, setEditingTechnicien] = useState(null);
+  const [formData, setFormData] = useState({
+    nom: '',
+    prenom: '',
+    email: '',
+    telephone: '',
+    specialite: ''
+  });
 
-  const filteredData = data.filter(item =>
-    `${item.nom} ${item.prenom}`.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    fetchTechniciens();
+  }, []);
 
-  const handleDelete = (id) => {
+  const fetchTechniciens = async () => {
+    try {
+      const response = await api.get('/techniciens');
+      setData(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError('Erreur lors du chargement des techniciens');
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
     setSelectedId(id);
     setShowModal(true);
   };
 
-  const confirmDelete = () => {
-    setData(prevData => prevData.filter(item => item.id !== selectedId));
-    setShowModal(false);
+  const confirmDelete = async () => {
+    try {
+      await api.delete(`/techniciens/${selectedId}`);
+      setData(prevData => prevData.filter(item => item._id !== selectedId));
+      setShowModal(false);
+    } catch (err) {
+      setError('Erreur lors de la suppression du technicien');
+    }
   };
+
+  const handleAdd = () => {
+    setFormData({
+      nom: '',
+      prenom: '',
+      email: '',
+      telephone: '',
+      specialite: ''
+    });
+    setShowAddModal(true);
+  };
+
+  const handleEdit = (technicien) => {
+    setEditingTechnicien(technicien);
+    setFormData({
+      nom: technicien.nom,
+      prenom: technicien.prenom,
+      email: technicien.email,
+      telephone: technicien.telephone,
+      specialite: technicien.specialite
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (showAddModal) {
+        const response = await api.post('/techniciens', formData);
+        setData(prevData => [...prevData, response.data]);
+        setShowAddModal(false);
+      } else if (showEditModal) {
+        const response = await api.put(`/techniciens/${editingTechnicien._id}`, formData);
+        setData(prevData => prevData.map(item => 
+          item._id === editingTechnicien._id ? response.data : item
+        ));
+        setShowEditModal(false);
+      }
+      setFormData({
+        nom: '',
+        prenom: '',
+        email: '',
+        telephone: '',
+        specialite: ''
+      });
+    } catch (err) {
+      setError('Erreur lors de l\'opération');
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const filteredData = data.filter(item =>
+    `${item.nom} ${item.prenom}`.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="admin-dashboard">
@@ -54,21 +154,23 @@ const TechnicienPage = () => {
         </thead>
         <tbody>
           {filteredData.map(item => (
-            <tr key={item.id}>
-              <td>{item.id}</td>
+            <tr key={item._id}>
+              <td>{item._id}</td>
               <td>{item.nom}</td>
               <td>{item.prenom}</td>
               <td>{item.email}</td>
               <td>{item.telephone}</td>
               <td>{item.specialite}</td>
               <td>
-                <button className="action-btn">&#9998;</button>
-                <button onClick={() => handleDelete(item.id)} className="action-btn">&#128465;</button>
+                <button className="action-btn" onClick={() => handleEdit(item)}>&#9998;</button>
+                <button onClick={() => handleDelete(item._id)} className="action-btn">&#128465;</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {/* Delete Confirmation Modal */}
       {showModal && (
         <div className="modal">
           <div className="modal-content">
@@ -80,35 +182,143 @@ const TechnicienPage = () => {
           </div>
         </div>
       )}
+
+      {/* Add/Edit Form Modal */}
+      {(showAddModal || showEditModal) && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>{showAddModal ? 'Ajouter un technicien' : 'Modifier le technicien'}</h3>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>Nom:</label>
+                <input
+                  type="text"
+                  name="nom"
+                  value={formData.nom}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Prénom:</label>
+                <input
+                  type="text"
+                  name="prenom"
+                  value={formData.prenom}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Email:</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Téléphone:</label>
+                <input
+                  type="tel"
+                  name="telephone"
+                  value={formData.telephone}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Spécialité:</label>
+                <input
+                  type="text"
+                  name="specialite"
+                  value={formData.specialite}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="modal-actions">
+                <button type="button" onClick={() => {
+                  setShowAddModal(false);
+                  setShowEditModal(false);
+                }}>Annuler</button>
+                <button type="submit">{showAddModal ? 'Ajouter' : 'Modifier'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 // Composant Client
 const ClientPage = () => {
-  const [data, setData] = useState([
-    { id: 1, nom: 'Durand', prenom: 'Marie', email: 'marie.durand@example.com', telephone: '06 11 22 33 44', adresse: '12 Rue de Paris' },
-    { id: 2, nom: 'Leroy', prenom: 'Thomas', email: 'thomas.leroy@example.com', telephone: '06 55 66 77 88', adresse: '5 Avenue des Fleurs' },
-    { id: 3, nom: 'Moreau', prenom: 'Alice', email: 'alice.moreau@example.com', telephone: '06 99 88 77 66', adresse: '3 Boulevard Central' }
-  ]);
-
+  const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
+  const fetchClients = async () => {
+    try {
+      const response = await api.get('/clients');
+      setData(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError('Erreur lors du chargement des clients');
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    setSelectedId(id);
+    setShowModal(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await api.delete(`/clients/${selectedId}`);
+      setData(prevData => prevData.filter(item => item.id !== selectedId));
+      setShowModal(false);
+    } catch (err) {
+      setError('Erreur lors de la suppression du client');
+    }
+  };
+
+  const handleAdd = async (newClient) => {
+    try {
+      const response = await api.post('/clients', newClient);
+      setData(prevData => [...prevData, response.data]);
+    } catch (err) {
+      setError('Erreur lors de l\'ajout du client');
+    }
+  };
+
+  const handleUpdate = async (id, updatedClient) => {
+    try {
+      const response = await api.put(`/clients/${id}`, updatedClient);
+      setData(prevData => prevData.map(item => 
+        item.id === id ? response.data : item
+      ));
+    } catch (err) {
+      setError('Erreur lors de la mise à jour du client');
+    }
+  };
 
   const filteredData = data.filter(item =>
     `${item.nom} ${item.prenom}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleDelete = (id) => {
-    setSelectedId(id);
-    setShowModal(true);
-  };
-
-  const confirmDelete = () => {
-    setData(prevData => prevData.filter(item => item.id !== selectedId));
-    setShowModal(false);
-  };
+  if (loading) return <div>Chargement...</div>;
+  if (error) return <div className="error-message">{error}</div>;
 
   return (
     <div className="admin-dashboard">
@@ -353,9 +563,9 @@ const SpecialitePage = () => {
 // Composant Note
 const NotePage = () => {
   const [data, setData] = useState([
-    { id: 1, technicien: 'Jean Dupont', moyenne: 4.5, interventions: 12 },
-    { id: 2, technicien: 'Sophie Martin', moyenne: 4.2, interventions: 8 },
-    { id: 3, technicien: 'Pierre Dubois', moyenne: 3.8, interventions: 15 }
+    { id: 1, technicien: 'amin', moyenne: 4.5, interventions: 12 },
+    { id: 2, technicien: 'karim sahli', moyenne: 4.2, interventions: 8 },
+    { id: 3, technicien: 'salim ka', moyenne: 3.8, interventions: 15 }
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');

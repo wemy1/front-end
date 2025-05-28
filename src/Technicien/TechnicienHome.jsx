@@ -64,7 +64,7 @@ export default function TechnicienHome() {
       description: "Mon climatiseur fait des flaques d'eau à l'intérieur. C'est un modèle split LG. Quelqu'un connaît ce problème?",
       photos: ["/986a4d67-3c28-4bc4-8e58-e9649bb6c4d2.jpg", "/8594e44bd0603081cae8329f82960d76.jpg"],
       ville: "Constantine",
-      date: "2023-11-13",
+      date: "2025-4-13",
       likes: 5,
       liked: false,
       noteClient: 4.2
@@ -209,7 +209,7 @@ export default function TechnicienHome() {
                 <WrenchIcon />
               </span>
               <span className="text-green-500 font-bold text-2xl">san</span>
-              <span className="text-black font-bold text-2xl">eati</span>
+              <span className="text-black font-bold text-2xl">3ati</span>
             </div>
             
             <div className="relative hidden md:block">

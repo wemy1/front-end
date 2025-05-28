@@ -1,103 +1,121 @@
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { MailIcon, ShieldCheckIcon } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Mail, CheckCircle, XCircle } from 'lucide-react';
+import axios from 'axios';
 
 export default function EmailVerificationPage() {
-  const location = useLocation();
   const navigate = useNavigate();
-
   const [verificationCode, setVerificationCode] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
 
-  const email = location.state?.email || '';
+  useEffect(() => {
+    const pendingUser = JSON.parse(sessionStorage.getItem('pendingVerification'));
+    if (!pendingUser || !pendingUser.email) {
+      navigate('/Connexion');
+      return;
+    }
+    setUserEmail(pendingUser.email);
+  }, [navigate]);
 
-  const verifyCode = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
     try {
-      setIsSubmitting(true);
-      setError(null);
-
-      if (!verificationCode) {
-        throw new Error('Veuillez entrer le code de vérification');
-      }
-
-      const response = await fetch('http://localhost:8000/api/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, verificationCode })
+      const response = await axios.post('http://localhost:5000/api/verify-email', {
+        email: userEmail,
+        verification_code: verificationCode
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Code de vérification incorrect');
+      if (response.data.success) {
+        // Clear pending verification
+        sessionStorage.removeItem('pendingVerification');
+        
+        // Show success message and redirect to login
+        setTimeout(() => {
+          navigate('/Connexion');
+        }, 2000);
       }
-
-      setSuccess('Email vérifié avec succès !');
-      setTimeout(() => navigate("/Connexion"), 2000);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || 'Erreur lors de la vérification');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleResendCode = async () => {
+    try {
+      await axios.post('http://localhost:5000/api/resend-verification', {
+        email: userEmail
+      });
+      alert('Un nouveau code de vérification a été envoyé à votre adresse email.');
+    } catch (err) {
+      setError('Erreur lors de l\'envoi du nouveau code');
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden p-8">
-        <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-            <MailIcon className="h-8 w-8 text-green-600" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Vérification d'email</h1>
-          <p className="mt-2 text-gray-600">
-            Nous avons envoyé un code de vérification à <span className="font-medium">{email}</span>
-          </p>
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="flex justify-center">
+          <Mail className="h-12 w-12 text-green-600" />
         </div>
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Vérification de votre email
+        </h2>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Un code de vérification a été envoyé à {userEmail}
+        </p>
+      </div>
 
-        {error && (
-          <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-md">
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="mt-4 p-3 bg-green-100 text-green-700 rounded-md">
-            {success}
-          </div>
-        )}
-
-        <div className="mt-6 space-y-4">
-          <div>
-            <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700">
-              Code de vérification
-            </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <ShieldCheckIcon className="h-5 w-5 text-gray-500" />
-              </div>
-              <input
-                type="text"
-                id="verificationCode"
-                name="verificationCode"
-                value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value)}
-                required
-                className="block w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Entrez le code à 6 chiffres"
-              />
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md flex items-center">
+              <XCircle className="h-5 w-5 mr-2" />
+              {error}
             </div>
-          </div>
+          )}
 
-          <div>
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="verification_code" className="block text-sm font-medium text-gray-700">
+                Code de vérification
+              </label>
+              <div className="mt-1">
+                <input
+                  id="verification_code"
+                  name="verification_code"
+                  type="text"
+                  required
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                  placeholder="Entrez le code à 6 chiffres"
+                />
+              </div>
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+              >
+                {isSubmitting ? 'Vérification...' : 'Vérifier'}
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-6">
             <button
-              type="button"
-              onClick={verifyCode}
-              disabled={isSubmitting || !verificationCode}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
+              onClick={handleResendCode}
+              className="w-full text-center text-sm text-green-600 hover:text-green-500"
             >
-              {isSubmitting ? 'Vérification...' : 'Vérifier le code'}
+              Renvoyer le code de vérification
             </button>
           </div>
         </div>
